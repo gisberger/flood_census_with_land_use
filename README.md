@@ -1,10 +1,10 @@
-# Flood Exposure Analysis with Land Use Refinement — Landkreis Altötting, Bavaria
+# Flood Exposure Analysis with Land Use Refinement in Landkreis Altötting, Bavaria
 
 ## What This Project Is About
 
-This is the second iteration of my flood exposure analysis for Landkreis Altötting. The [first version](https://github.com/gisberger/flood-exposure-altoetting-v1) estimated affected population using a 100m census grid overlaid with flood hazard polygons and a simple area-weighting approach.
+This is the second iteration of my flood exposure analysis for Landkreis Altötting. The [first version](https://github.com/gisberger/flood-exposure-altoetting-v1) estimated affected population using a 100mx100m census grid overlaid with flood hazard polygons and a simple area-weighting approach.
 
-This version refines the method by incorporating ALKIS land use data — specifically residential building footprints — to distribute population more realistically. Instead of assuming people are spread uniformly across a census cell, the calculation now concentrates them in areas classified as residential, then checks how much of that residential area is flooded.
+This version refines the method by incorporating ALKIS land use data (residential building footprints) to distribute population more realistically. Instead of assuming people are spread uniformly across a census cell, the calculation now concentrates them in areas classified as residential, then checks how much of that residential area is flooded.
 
 During the process, I also discovered that the BfG operates multiple flood risk map portals with different data vintages, which resolved a confusing discrepancy from the first project.
 
@@ -16,12 +16,12 @@ All SQL code was hand-written, with troubleshooting support by Claude model Opus
 
 **Version 1 formula:**
 ```
-Einwohner × (flooded area of cell / total cell area)
+pop × (flooded area of cell / total cell area)
 ```
 
 **Version 2 formula:**
 ```
-Einwohner × (flooded residential area in cell / total residential area in cell)
+pop × (flooded residential area in cell / total residential area in cell)
 ```
 
 The difference: if a census cell is 80% farmland and 20% residential, and the flood zone covers the residential part, Version 1 assigns only 20% of the population (because 20% of the cell is flooded). Version 2 correctly assigns ~100% (because all the residential area is flooded). Conversely, if only farmland floods, Version 2 assigns 0 — nobody lives there.
@@ -67,7 +67,7 @@ GROUP BY a.name_3;
 
 ## The BfG Data Confusion
 
-During the first project, I compared my results against a BfG flood risk map that showed zero affected residents for several municipalities (Altötting, Tüßling, Teising, and others). This seemed wrong — my analysis clearly showed residential areas within flood zones there.
+During the first project, I compared my results against a BfG flood risk map that showed zero affected residents for several municipalities (Altötting, Tüßling, Teising, and others). This seemed wrong - my analysis clearly showed residential areas within flood zones there.
 
 It turned out that the BfG operates two separate map portals:
 
@@ -76,7 +76,7 @@ It turned out that the BfG operates two separate map portals:
 
 Additionally, the LfU Bayern publishes separate Beiblätter (PDF supplements) per municipality with yet another set of numbers.
 
-This version compares against all three sources to give the full picture.
+This version compares against the old and the current public maps to give a more complete picture.
 
 ---
 
@@ -125,7 +125,7 @@ SELECT adm.name_3 AS gemeinde,
        r.betroffene_extrem,
        COALESCE(a.hq_extrem::integer, 0)   AS bfg_2019_extrem,
        COALESCE(b.bfg_extrem::integer, 0)  AS bfg_aktuell_extrem
-FROM adm_adm_3 adm
+FROM adm_adm_3 adm --contains district and municipality names and geographies
 LEFT JOIN result_alkis r ON adm.name_3 = r.gemeinde
 LEFT JOIN bfg_betroffene_2019 a ON adm.name_3 LIKE '%' || a.gemeinde || '%'
 LEFT JOIN bfg_referenz b ON adm.name_3 LIKE '%' || b.gemeinde || '%'
@@ -139,7 +139,7 @@ Starting from `adm_adm_3` and using `LEFT JOIN` ensures all municipalities appea
 
 ## Performance Considerations
 
-Computing `ST_Intersection` on the fly for every census cell × flood polygon × residential area combination was prohibitively slow. The solution was to precompute intermediate results as permanent tables:
+Computing `ST_Intersection` on the fly for every census cell × flood polygon × residential area combination was extremely slow. The solution was to precompute intermediate results as permanent tables:
 
 1. **`wohnflaechen_hw_100/extrem/haeufig`** — Flood zones clipped to residential areas, one table per scenario
 2. **`zensus_wohn_gesamt`** — Total residential area per census cell
@@ -183,7 +183,7 @@ The final query then performs only one spatial intersection at runtime (census c
 
 ## What I Learned (Beyond SQL)
 
-The biggest unexpected lesson from this project wasn't technical — it was discovering that official reference data isn't monolithic. Three different portals from the same federal agency showed three different numbers for the same municipality. Understanding *why* (reporting cycles, data vintages, incomplete uploads) turned out to be just as important as getting the SQL right.
+The biggest unexpected lesson from this project wasn't technical, but rather that official reference data can be ambiguous. Three different portals from the same federal agency showed three different numbers for the same municipality. Understanding *why* (reporting cycles, data vintages, incomplete uploads) turned out to be just as important as getting the SQL right.
 
 The ALKIS refinement also taught a lesson about data resolution mismatches: building-level footprints are too fine for a 100m population grid (leading to undercounting), while land use zones are too coarse (leading to overcounting). The sweet spot was using land use zones as the denominator while accepting that the 100m grid sets the practical resolution limit.
 
