@@ -1,4 +1,4 @@
-# Flood Exposure Analysis with Land Use Refinement — Landkreis Altötting, Bavaria
+# Flood Exposure Analysis with Land Use Refinement in Landkreis Altötting, Bavaria
 
 ## What This Project Is About
 
