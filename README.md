@@ -112,7 +112,7 @@ This version compares against all four sources - own analysis, BfG 2019, BfG cur
 |---|---|---|---|---|---|---|---|---|---|---|---|---|
 | Altötting | 0 | 0 | 0 | 0 | 338 | 910 | 0 | 580 | 2879 | 2490 | 0 | 2670 |
 | Burghausen | 1 | 0 | 1 | 0 | 25 | 0 | 30 | 30 | 403 | 190 | 190 | 190 |
-| Burgkirchen a.d. Alz | 5 | 0 | 10 | 0 | 22 | 730 | 80 | 0 | 1403 | 0 | 1610 | 0 |
+| Burgkirchen a.d. Alz | 5 | 0 | 10 | 10 | 22 | 730 | 80 | 80 | 1403 | 0 | 1610 | 1610 |
 | Emmerting | 0 | 0 | 1 | 0 | 0 | 0 | 1 | 0 | 2835 | 2200 | 2660 | 2660 |
 | Garching a.d. Alz | 0 | 0 | 1 | 0 | 50 | 190 | 80 | 0 | 691 | 600 | 730 | 0 |
 | Haiming | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 |
@@ -135,6 +135,11 @@ This version compares against all four sources - own analysis, BfG 2019, BfG cur
 - **Altötting HQ100:** Own analysis (338) vs. BfG 2019 (910) vs. LfU (580). Significant spread across all sources, suggesting genuine uncertainty or differences in which watercourses are modeled.
 - **Reischach and Teising** show large deviations between own analysis and all official sources, warranting further investigation into which flood polygons cover those municipalities.
 - **BfG current portal** continues to show zeros for many municipalities where all other sources agree on significant exposure, confirming incomplete data in the 3rd reporting cycle.
+
+- **Burgkirchen deviation:** The BfG 100-year scenarios for Burgkirchen (730 and 80) have siginificantly higher values than my own (22) and the LfU's (0). The view below seems to indicate only few-to-zero people affected.
+   
+<img width="829" height="546" alt="image" src="https://github.com/user-attachments/assets/3496991b-0d59-4842-952e-4cb64a7d4793" />
+
 
 ---
 
