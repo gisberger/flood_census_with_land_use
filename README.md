@@ -2,7 +2,7 @@
 
 ## What This Project Is About
 
-This is the second iteration of my flood exposure analysis for Landkreis Altötting. The [first version](https://github.com/gisberger/flood-exposure-altoetting-v1) estimated affected population using a 100m census grid overlaid with flood hazard polygons and a simple area-weighting approach.
+This is the second iteration of my flood exposure analysis for Landkreis Altötting. The [first version](https://github.com/gisberger/flood_census) estimated affected population using a 100m census grid overlaid with flood hazard polygons and a simple area-weighting approach.
 
 This version refines the method by incorporating ALKIS land use data containing specifically residential area classifications to distribute population more realistically. Instead of assuming people are spread uniformly across a census cell, the calculation now concentrates them in areas classified as residential, then checks how much of that residential area is flooded.
 
