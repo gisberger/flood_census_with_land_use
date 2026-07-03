@@ -6,7 +6,7 @@ This is the second iteration of my flood exposure analysis for Landkreis Altött
 
 This version refines the method by incorporating ALKIS land use data containing specifically residential area classifications to distribute population more realistically. Instead of assuming people are spread uniformly across a census cell, the calculation now concentrates them in areas classified as residential, then checks how much of that residential area is flooded.
 
-During the process, I also discovered that the BfG operates multiple flood risk map portals with different data vintages, and that the LfU Bayern publishes its own Beiblätter with yet another set of numbers - which resolved a confusing discrepancy from the first project and added a four-way comparison to the analysis.
+During the process, I also discovered that Bavaria's 3rd-cycle upload to the BfG's flood risk portal is still incomplete for this district, and that the LfU Bayern publishes its own Beiblätter with yet another, more complete set of numbers - which resolved a confusing discrepancy from the first project and added a three-way comparison to the analysis.
 
 All SQL code was hand-written, with troubleshooting support by Claude model Opus 4.7.
 
@@ -93,77 +93,69 @@ GROUP BY a.name_3;
 
 ## The BfG Data Confusion
 
-During the first project, I compared my results against a BfG flood risk map that showed zero affected residents for several municipalities. This seemed wrong - my analysis clearly showed residential areas within flood zones there.
+During the first project, I compared my results against the BfG's current flood risk map (HWRM current, 3rd reporting cycle, `geoportal.bafg.de/karten/HWRM_2026/`), which showed zero affected residents for several municipalities. This seemed wrong - my analysis clearly showed residential areas within flood zones there.
 
-It turned out that the BfG operates two separate map portals with different data:
+It turned out that Bavaria's data upload for the 3rd reporting cycle is still incomplete (reporting deadline December 2025, management plans due December 2027), which explains the zeros in several municipalities on that portal.
 
-- **HWRM 2019** (`geoportal.bafg.de/karten/HWRM/`) - The 2nd reporting cycle, ArcGIS-based layout. This version has more complete data for Landkreis Altötting.
-- **HWRM current** (`geoportal.bafg.de/karten/HWRM_2026/`) - The 3rd reporting cycle, newer layout. This version shows zeros for many municipalities, likely because Bavaria's data upload for the 3rd cycle is still incomplete (reporting deadline December 2025, management plans due December 2027).
+Additionally, the LfU Bayern publishes **Beiblätter** (PDF supplements) per municipality and per watercourse, containing a separate set of numbers that include water depth breakdowns. These values sometimes differ from the BfG portal.
 
-Additionally, the LfU Bayern publishes **Beiblätter** (PDF supplements) per municipality and per watercourse, containing a third set of numbers that include water depth breakdowns. These values sometimes differ from both BfG portals.
-
-This version compares against all four sources - own analysis, BfG 2019, BfG current, and LfU Beiblätter - to give the full picture.
+This version compares against three sources - own analysis, BfG current, and LfU Beiblätter - to give a fuller picture, while noting that even official sources don't always agree with each other.
 
 ---
 
 ## Final Comparison Table
 
-| Municipality | Own (freq.) | BfG 2019 (freq.) | BfG current (freq.) | LfU (freq.) | Own (HQ100) | BfG 2019 (HQ100) | BfG current (HQ100) | LfU (HQ100) | Own (extr.) | BfG 2019 (extr.) | BfG current (extr.) | LfU (extr.) |
-|---|---|---|---|---|---|---|---|---|---|---|---|---|
-| Altötting | 0 | 0 | 0 | 0 | 338 | 910 | 0 | 580 | 2879 | 2490 | 0 | 2670 |
-| Burghausen | 1 | 0 | 1 | 0 | 25 | 0 | 30 | 30 | 403 | 190 | 190 | 190 |
-| Burgkirchen a.d. Alz | 5 | 0 | 10 | 10 | 22 | 730 | 80 | 80 | 1403 | 0 | 1610 | 1610 |
-| Emmerting | 0 | 0 | 1 | 0 | 0 | 0 | 1 | 0 | 2835 | 2200 | 2660 | 2660 |
-| Garching a.d. Alz | 0 | 0 | 1 | 0 | 50 | 190 | 80 | 0 | 691 | 600 | 730 | 0 |
-| Haiming | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 |
-| Kirchweidach | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 |
-| Marktl | 0 | 0 | 1 | 0 | 3 | 0 | 10 | 0 | 11 | 0 | 20 | 30 |
-| Neuötting | 0 | 0 | 20 | 20 | 326 | 450 | 40 | 440 | 1802 | 1560 | 1710 | 1710 |
-| Pleiskirchen | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 |
-| Reischach | 3 | 0 | 1 | 0 | 73 | 10 | 10 | 10 | 149 | 30 | 30 | 30 |
-| Teising | 0 | 0 | 0 | 0 | 28 | 200 | 0 | 70 | 109 | 280 | 0 | 250 |
-| Töging a. Inn | 0 | 0 | 0 | 0 | 0 | 10 | 0 | 0 | 2 | 30 | 0 | 0 |
-| Tüßling | 0 | 0 | 0 | 0 | 421 | 1070 | 0 | 410 | 1923 | 1570 | 0 | 1620 |
-| Unterneukirchen | 0 | 0 | 1 | 0 | 6 | 30 | 40 | 40 | 72 | 30 | 60 | 60 |
-| Winhöring | 0 | 0 | 0 | 0 | 9 | 0 | 0 | 0 | 64 | 260 | 0 | 60 |
+| Municipality | Own (freq.) | BfG current (freq.) | LfU (freq.) | Own (HQ100) | BfG current (HQ100) | LfU (HQ100) | Own (extr.) | BfG current (extr.) | LfU (extr.) |
+|---|---|---|---|---|---|---|---|---|---|
+| Altötting | 0 | 0 | 0 | 338 | 0 | 580 | 2879 | 0 | 2670 |
+| Burghausen | 1 | 1 | 0 | 25 | 30 | 30 | 403 | 190 | 190 |
+| Burgkirchen a.d. Alz | 5 | 10 | 10 | 22 | 80 | 80 | 1403 | 1610 | 1610 |
+| Emmerting | 0 | 1 | 0 | 0 | 1 | 0 | 2835 | 2660 | 2660 |
+| Garching a.d. Alz | 0 | 1 | 0 | 50 | 80 | 80 | 691 | 730 | 730 |
+| Haiming | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 |
+| Kirchweidach | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 |
+| Marktl | 0 | 1 | 0 | 3 | 10 | 0 | 11 | 20 | 30 |
+| Neuötting | 0 | 20 | 20 | 326 | 40 | 440 | 1802 | 1710 | 1710 |
+| Pleiskirchen | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 |
+| Reischach | 3 | 1 | 0 | 73 | 10 | 10 | 149 | 30 | 30 |
+| Teising | 0 | 0 | 0 | 28 | 0 | 70 | 109 | 0 | 250 |
+| Töging a. Inn | 0 | 0 | 0 | 0 | 0 | 10 | 2 | 0 | 30 |
+| Tüßling | 0 | 0 | 0 | 421 | 0 | 410 | 1923 | 0 | 1620 |
+| Unterneukirchen | 0 | 1 | 0 | 6 | 40 | 40 | 72 | 60 | 60 |
+| Winhöring | 0 | 0 | 0 | 9 | 0 | 0 | 64 | 0 | 60 |
 
 ### Notable Observations
 
 - **Tüßling HQ100:** Own analysis (421) vs. LfU Beiblatt (410) - remarkably close, suggesting the ALKIS-refined method produces results comparable to the official LfU methodology for this municipality.
-- **Emmerting extreme:** Own analysis (2835) vs. BfG 2019 (2200) vs. BfG current (2660) vs. LfU (2660). The BfG current and LfU values agree, and the own analysis is in the same range.
-- **Neuötting HQ100:** Own analysis (326) vs. BfG 2019 (450) vs. LfU (440). Consistent underestimation by the own analysis - possibly due to residential areas just outside the ALKIS classification that the official method captures.
-- **Altötting HQ100:** Own analysis (338) vs. BfG 2019 (910) vs. LfU (580). Significant spread across all sources, suggesting genuine uncertainty or differences in which watercourses are modeled.
-- **Reischach and Teising** show large deviations between own analysis and all official sources, warranting further investigation into which flood polygons cover those municipalities.
-- **BfG current portal** continues to show zeros for many municipalities where all other sources agree on significant exposure, confirming incomplete data in the 3rd reporting cycle.
+- **Emmerting extreme:** Own analysis (2835) vs. BfG current (2660) vs. LfU (2660). BfG current and LfU agree closely; own analysis is somewhat higher.
+- **Neuötting HQ100:** Own analysis (326) vs. LfU (440), with BfG current showing just 40 - likely reflecting the incomplete 3rd-cycle upload. Own analysis consistently comes in below LfU, possibly due to residential areas just outside the ALKIS classification that the official method captures.
+- **Altötting HQ100:** Own analysis (338) vs. LfU (580), with BfG current at 0 - again consistent with the incomplete 3rd-cycle data. The nearly 250-person gap between own analysis and LfU suggests genuine uncertainty in which watercourses are modeled.
+- **Reischach and Teising** show large deviations between own analysis and both official sources, warranting further investigation into which flood polygons cover those municipalities.
+- **BfG current portal** continues to show zeros for many municipalities where own analysis and LfU agree on significant exposure, confirming incomplete data in the 3rd reporting cycle.
+- **Garching a.d. Alz and Burgkirchen a.d. Alz:** an earlier version of this table had a name-matching bug where these two municipalities - both containing the token "Alz" - were briefly joined to the same LfU source row, which zeroed out Garching's LfU figures. After fixing the join to require exact token-set matches instead of partial overlap, Garching's corrected LfU values (80 / 730) now closely track its BfG current figures.
+- **Burgkirchen deviation:** the BfG current 100-year figure for Burgkirchen (80) matches the corrected LfU figure (80) - both notably higher than my own analysis (22). Since BfG current and LfU now agree with each other, the gap looks specific to my own ALKIS-refined method for this municipality. The view below suggests only a small residential footprint actually falls within the flood extent, so this is worth a closer look.
 
-- **Burgkirchen deviation:** The BfG 100-year scenarios for Burgkirchen (730 and 80) have siginificantly higher values than my own (22) and the LfU's (0). The view below seems to indicate only few-to-zero people affected.
-   
 <img width="829" height="546" alt="image" src="https://github.com/user-attachments/assets/3496991b-0d59-4842-952e-4cb64a7d4793" />
-
 
 ---
 
 ## SQL for the Final Comparison
 
-All three flood scenarios, plus three official reference datasets, combined in one query starting from the municipality table to ensure completeness:
+All three flood scenarios, plus the two official reference datasets, combined in one query starting from the municipality table to ensure completeness:
 
 ```sql
 SELECT adm.name_3 AS gemeinde,
-       r.betroffene_haeufig, 
-       COALESCE(a.hq_haeufig::integer, 0)  AS bfg_2019_haeufig,
+       r.betroffene_haeufig,
        COALESCE(b.bfg_haeufig::integer, 0) AS bfg_aktuell_haeufig,
        COALESCE(l.lfu_haeufig::integer, 0) AS lfu_haeufig,
        r.betroffene_100,
-       COALESCE(a.hq_100::integer, 0)      AS bfg_2019_100,
        COALESCE(b.bfg_hq100::integer, 0)   AS bfg_aktuell_100,
        COALESCE(l.lfu_100::integer, 0)     AS lfu_100,
        r.betroffene_extrem,
-       COALESCE(a.hq_extrem::integer, 0)   AS bfg_2019_extrem,
        COALESCE(b.bfg_extrem::integer, 0)  AS bfg_aktuell_extrem,
        COALESCE(l.lfu_extrem::integer, 0)  AS lfu_extrem
 FROM adm_adm_3 adm
 LEFT JOIN result_alkis r ON adm.name_3 = r.gemeinde
-LEFT JOIN bfg_betroffene_2019 a ON adm.name_3 LIKE '%' || a.gemeinde || '%'
 LEFT JOIN bfg_referenz b ON adm.name_3 LIKE '%' || b.gemeinde || '%'
 LEFT JOIN lfu_beiblatt l ON adm.name_3 LIKE '%' || l.gemeinde || '%'
 WHERE adm.name_2 LIKE '%Altötting%'
@@ -171,6 +163,8 @@ ORDER BY adm.name_3;
 ```
 
 Starting from `adm_adm_3` and using `LEFT JOIN` ensures all municipalities appear even if they have no affected residents in any scenario. `COALESCE` fills gaps with 0 for readability.
+
+> **Note:** this join still uses `LIKE '%' || gemeinde || '%'` partial-string matching, which is exactly the pattern that caused the Garching/Burgkirchen mix-up above. It works here because no two gemeinde names happen to collide anymore, but a token-based exact match (splitting each name into words and comparing sets) is safer and worth carrying over into future versions of this query.
 
 ---
 
@@ -194,7 +188,6 @@ The final result query joins everything on cell IDs - only one spatial operation
 | Zensus 2022 - Bevölkerung 100m-Gitter | Statistisches Bundesamt | GeoPackage | EPSG:3857 (reprojected to 25832) |
 | ALKIS Tatsächliche Nutzung | Bayerische Vermessungsverwaltung | Shapefile | EPSG:25832 |
 | Verwaltungsgrenzen (Gemeinden, Landkreise) | GADM / BKG | Shapefile | EPSG:4326 (reprojected to 25832) |
-| BfG Hochwasserrisikokarte 2019 - Betroffene Einwohner | BfG Geoportal (2. Zyklus) | manually extracted | - |
 | BfG Hochwasserrisikokarte aktuell - Betroffene Einwohner | BfG Geoportal (3. Zyklus) | manually extracted | - |
 | LfU Beiblätter - Betroffene Einwohner | LfU Bayern (PDF per municipality) | manually extracted | - |
 
@@ -216,14 +209,15 @@ The final result query joins everything on cell IDs - only one spatial operation
 - ALKIS "Wohnbaufläche" and "Mischnutzung mit Wohnen" classifications include gardens, driveways, and other non-building areas. They are land use zones, not individual building outlines.
 - The analysis considers only the 2D surface area of flood zones. Flood depth, flow velocity, and building elevation are not accounted for.
 - Flood hazard polygons represent modeled scenarios, not observed events.
-- The four-way comparison reveals that even official sources disagree significantly, making it difficult to identify a single "correct" reference value.
+- The three-way comparison reveals that even official sources (BfG current and LfU) don't always agree with each other, making it difficult to identify a single "correct" reference value.
 - Some municipalities (Reischach, Teising) show persistent large deviations from all official sources, suggesting possible differences in which watercourses or flood scenarios are included in the LfU data provided for this analysis.
+- Municipality-name joins via partial string matching (`LIKE '%name%'`) can silently produce wrong or duplicated results when names share a substring, as happened with Garching a.d. Alz and Burgkirchen a.d. Alz here. Token-based exact matching is a more robust approach for this kind of join.
 
 ---
 
 ## What I Learned (Beyond SQL)
 
-The biggest unexpected lesson from this project wasn't technical but rather discovering that official reference data can be contradictory. Four different sources (BfG 2019, BfG current, LfU Beiblätter, and my own analysis) produced four different numbers for the same municipality. Understanding *why* - reporting cycles, data vintages, incomplete uploads, different watercourse coverage - turned out to be just as important as getting the SQL right.
+The biggest unexpected lesson from this project wasn't technical but rather discovering that official reference data can itself be inconsistent. Three different sources (BfG current, LfU Beiblätter, and my own analysis) frequently produced three different numbers for the same municipality. Understanding *why* - incomplete data uploads, differing watercourse coverage, and even name-matching quirks in how municipalities get joined across datasets - turned out to be just as important as getting the SQL right.
 
 The ALKIS refinement taught a lesson about data resolution mismatches: building-level footprints are too fine for a 100m population grid (leading to undercounting), while land use zones are appropriately scaled. And the double-counting bug - where overlapping residential flood polygons within a single census cell inflated results beyond the total population - was a reminder that spatial joins can multiply data in ways that aren't immediately obvious.
 
